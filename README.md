@@ -34,7 +34,7 @@ It is built around three parts: a dashboard for users, a backend for application
 <div align="center">
 
 <!-- Save the supplied dashboard screenshot as assets/growpilot-dashboard.png to display it here. -->
-<img src="assets/growpilot-dashboard.png" alt="GrowPilot dashboard showing emergency alerts, sensor readings, VPD, and device status" width="100%">
+<img src="assets/growpilot-dashboard.jpeg" alt="GrowPilot dashboard showing emergency alerts, sensor readings, VPD, and device status" width="100%">
 
 <sub>GrowPilot dashboard — sensor overview, alerts, environmental metrics, and device monitoring.</sub>
 
