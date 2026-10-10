@@ -1,0 +1,8 @@
+node_modules
+dist
+*.tsbuildinfo
+.replit-artifact/
+.env
+.env.local
+.DS_Store
+Thumbs.db

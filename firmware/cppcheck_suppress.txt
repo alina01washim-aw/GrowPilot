@@ -1,0 +1,57 @@
+// cppcheck suppression file for MycoControl firmware
+//
+// Rationale:
+// - ArduinoJson headers use advanced token-pasting macros that cppcheck cannot
+//   expand, causing false-positive preprocessor errors.
+// - Our functions are used across multiple .cpp translation units; cppcheck's
+//   single-file analysis reports them as unused.
+// - External libraries (Adafruit, OneWire, Sensirion, DallasTemperature) contain
+//   non-explicit single-argument constructors and other style warnings that are
+//   intentional API design or upstream issues we can't fix.
+
+# ArduinoJson macro expansion false positives (cppcheck cannot handle ARDUINOJSON_CONCAT_)
+preprocessorErrorDirective:*preprocessor.hpp
+
+# Cross-TU false positives — functions are used across .cpp files
+# Use both forward and backslash patterns for Windows compatibility
+unusedFunction:src\*
+unusedFunction:src/*
+unusedFunction:*\src\*
+unusedFunction:*/src/*
+
+# External library style warnings (non-explicit single-argument constructors)
+noExplicitConstructor:*Adafruit*
+noExplicitConstructor:*OneWire*
+noExplicitConstructor:*Sensirion*
+noExplicitConstructor:*DallasTemperature*
+
+# External library style warnings (missing override specifier)
+missingOverride:*Adafruit*
+missingOverride:*OneWire*
+missingOverride:*DallasTemperature*
+
+# External library warnings (C++ standard library / framework code - not our code)
+# These are in framework/toolchain headers and are not actionable
+throwInNoexceptFunction:*ext/concurrence.h
+nullPointer:*bits/basic_string.h
+nullPointerArithmeticRedundantCheck:*bits/basic_string.h
+cstyleCast:*WString.h
+cstyleCast:*Print.h
+cstyleCast:*Stream.h
+cstyleCast:*HardwareSerial.h
+cstyleCast:*allocator.h
+cstyleCast:*uses_allocator.h
+cstyleCast:*alloc_traits.h
+cstyleCast:*new_allocator.h
+knownConditionTrueFalse:*char_traits.h
+knownConditionTrueFalse:*gthr-default.h
+knownConditionTrueFalse:*atomicity.h
+knownConditionTrueFalse:*basic_string.tcc
+knownConditionTrueFalse:*concurrence.h
+unsignedLessThanZero:*limits
+constParameterReference:*stl_function.h
+constParameterPointer:*type_traits.h
+constParameterPointer:*stl_algobase.h
+constParameterPointer:*std_function.h
+accessMoved:*shared_ptr_base.h
+unreadVariable:*atomic_base.h

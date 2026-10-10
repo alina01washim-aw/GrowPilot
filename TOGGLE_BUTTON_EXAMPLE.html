@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto/Manual Toggle Button</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f0f0f0;
+    }
+
+    .device-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+
+    .device-name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Toggle Switch Styling */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 16px 0;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 140px;
+      height: 40px;
+      display: inline-block;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #4CAF50;
+      transition: .3s;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 32px;
+      width: 60px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .slider {
+      background-color: #FF9800;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(72px);
+    }
+
+    .slider-text {
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .slider-text.left {
+      margin-left: 0;
+    }
+
+    .slider-text.right {
+      margin-right: 0;
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .status-badge.auto {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .status-badge.manual {
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    /* Device Info */
+    .device-info {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .device-info strong {
+      color: #333;
+    }
+
+    /* Manual Controls (only show in MANUAL mode) */
+    .manual-controls {
+      margin-top: 16px;
+      padding: 16px;
+      background: #FFF3E0;
+      border-radius: 8px;
+      border: 2px solid #FFB74D;
+    }
+
+    .manual-controls.hidden {
+      display: none;
+    }
+
+    .manual-controls button {
+      margin: 4px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-on {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .btn-on:hover {
+      background: #45a049;
+    }
+
+    .btn-off {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-off:hover {
+      background: #da190b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🍄 Mushroom Farm Device Control</h1>
+
+  <!-- Fan Device Card -->
+  <div class="device-card">
+    <div class="device-name">
+      🌀 <span>Exhaust Fan</span>
+    </div>
+
+    <div class="toggle-container">
+      <span class="toggle-label">Control Mode:</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="fan-toggle" onchange="toggleMode('fan', this.checked)">
+        <span class="slider">
+          <span class="slider-text left">AUTO</span>
+          <span class="slider-text right">MANUAL</span>
+        </span>
+      </label>
+    </div>
+
+    <div id="fan-status" class="status-badge auto">
+      ✅ AUTO MODE - CO2 Control Active
+    </div>
+
+    <div id="fan-info" class="device-info">
+      <strong>Current Status:</strong> AUTO<br>
+      <strong>Device State:</strong> <span id="fan-device-state">OFF</span><br>
+      <strong>Control:</strong> Automation (CO2 based)
+    </div>
+
+    <div id="fan-manual-controls" class="manual-controls hidden">
+      <strong>Manual Control:</strong><br>
+      <button class="btn-on" onclick="manualControl('fan', true)">⚡ Turn ON</button>
+      <button class="btn-off" onclick="manualControl('fan', false)">⏹️ Turn OFF</button>
+    </div>
+  </div>
+
+  <!-- AC/Fridge Device Card -->
+  <div class="device-card">
+    <div class="device-name">
+      ❄️ <span>Compressor (AC)</span>
+    </div>
+
+    <div class="toggle-container">
+      <span class="toggle-label">Control Mode:</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="fridge-toggle" onchange="toggleMode('fridge', this.checked)">
+        <span class="slider">
+          <span class="slider-text left">AUTO</span>
+          <span class="slider-text right">MANUAL</span>
+        </span>
+      </label>
+    </div>
+
+    <div id="fridge-status" class="status-badge auto">
+      ✅ AUTO MODE - Temperature Control Active
+    </div>
+
+    <div id="fridge-info" class="device-info">
+      <strong>Current Status:</strong> AUTO<br>
+      <strong>Device State:</strong> <span id="fridge-device-state">OFF</span><br>
+      <strong>Control:</strong> Automation (Temperature based)
+    </div>
+
+    <div id="fridge-manual-controls" class="manual-controls hidden">
+      <strong>Manual Control:</strong><br>
+      <button class="btn-on" onclick="manualControl('fridge', true)">⚡ Turn ON</button>
+      <button class="btn-off" onclick="manualControl('fridge', false)">⏹️ Turn OFF</button>
+    </div>
+  </div>
+
+  <!-- Humidifier Device Card -->
+  <div class="device-card">
+    <div class="device-name">
+      💧 <span>Mist Maker (Humidifier)</span>
+    </div>
+
+    <div class="toggle-container">
+      <span class="toggle-label">Control Mode:</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="humidifier-toggle" onchange="toggleMode('humidifier', this.checked)">
+        <span class="slider">
+          <span class="slider-text left">AUTO</span>
+          <span class="slider-text right">MANUAL</span>
+        </span>
+      </label>
+    </div>
+
+    <div id="humidifier-status" class="status-badge auto">
+      ✅ AUTO MODE - Humidity Control Active
+    </div>
+
+    <div id="humidifier-info" class="device-info">
+      <strong>Current Status:</strong> AUTO<br>
+      <strong>Device State:</strong> <span id="humidifier-device-state">OFF</span><br>
+      <strong>Control:</strong> Automation (Humidity based)
+    </div>
+
+    <div id="humidifier-manual-controls" class="manual-controls hidden">
+      <strong>Manual Control:</strong><br>
+      <button class="btn-on" onclick="manualControl('humidifier', true)">⚡ Turn ON</button>
+      <button class="btn-off" onclick="manualControl('humidifier', false)">⏹️ Turn OFF</button>
+    </div>
+  </div>
+
+  <script>
+    // Get token from localStorage (or however you store it)
+    const token = localStorage.getItem('auth_token') || 'YOUR_TOKEN_HERE';
+    const API = 'http://localhost:3000/api';
+
+    // Toggle between AUTO and MANUAL mode
+    async function toggleMode(deviceName, isManual) {
+      const statusEl = document.getElementById(`${deviceName}-status`);
+      const infoEl = document.getElementById(`${deviceName}-info`);
+      const manualControlsEl = document.getElementById(`${deviceName}-manual-controls`);
+
+      if (isManual) {
+        // Switch to MANUAL mode
+        console.log(`Switching ${deviceName} to MANUAL mode`);
+        
+        try {
+          // Call API to disable automation
+          const response = await fetch(`${API}/relays/${deviceName}/stop-automation`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const data = await response.json();
+          console.log('Response:', data);
+
+          // Update UI
+          statusEl.className = 'status-badge manual';
+          statusEl.textContent = '🔧 MANUAL MODE - You Control It';
+          
+          infoEl.innerHTML = `
+            <strong>Current Status:</strong> MANUAL<br>
+            <strong>Device State:</strong> <span id="${deviceName}-device-state">${data.relay?.state ? 'ON' : 'OFF'}</span><br>
+            <strong>Control:</strong> Manual Control (You)
+          `;
+          
+          manualControlsEl.classList.remove('hidden');
+          
+        } catch (error) {
+          console.error('Error switching to manual:', error);
+          alert('Failed to switch to manual mode. Check console.');
+        }
+
+      } else {
+        // Switch to AUTO mode
+        console.log(`Switching ${deviceName} to AUTO mode`);
+        
+        try {
+          // Call API to enable automation
+          const response = await fetch(`${API}/relays/${deviceName}/activate-automation`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const data = await response.json();
+          console.log('Response:', data);
+
+          // Update UI
+          statusEl.className = 'status-badge auto';
+          
+          const controlType = {
+            'fan': 'CO2',
+            'fridge': 'Temperature',
+            'humidifier': 'Humidity'
+          };
+          
+          statusEl.textContent = `✅ AUTO MODE - ${controlType[deviceName]} Control Active`;
+          
+          infoEl.innerHTML = `
+            <strong>Current Status:</strong> AUTO<br>
+            <strong>Device State:</strong> <span id="${deviceName}-device-state">${data.relay?.state ? 'ON' : 'OFF'}</span><br>
+            <strong>Control:</strong> Automation (${controlType[deviceName]} based)
+          `;
+          
+          manualControlsEl.classList.add('hidden');
+          
+        } catch (error) {
+          console.error('Error switching to auto:', error);
+          alert('Failed to switch to auto mode. Check console.');
+        }
+      }
+    }
+
+    // Manual ON/OFF control
+    async function manualControl(deviceName, turnOn) {
+      console.log(`Manually turning ${deviceName} ${turnOn ? 'ON' : 'OFF'}`);
+      
+      try {
+        const response = await fetch(`${API}/relays/${deviceName}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ state: turnOn })
+        });
+        
+        const data = await response.json();
+        console.log('Response:', data);
+        
+        // Update device state display
+        const stateEl = document.getElementById(`${deviceName}-device-state`);
+        stateEl.textContent = turnOn ? 'ON' : 'OFF';
+        stateEl.style.color = turnOn ? '#4CAF50' : '#f44336';
+        
+        alert(`${deviceName} turned ${turnOn ? 'ON' : 'OFF'} successfully!`);
+        
+      } catch (error) {
+        console.error('Error controlling device:', error);
+        alert('Failed to control device. Check console.');
+      }
+    }
+
+    // Initialize - load current status on page load
+    async function loadDeviceStatus() {
+      try {
+        const response = await fetch(`${API}/relays`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const relays = await response.json();
+        console.log('Current relay status:', relays);
+        
+        // Update UI based on current status
+        relays.forEach(relay => {
+          const toggle = document.getElementById(`${relay.name}-toggle`);
+          const isManual = !relay.automationEnabled;
+          
+          // Set toggle position
+          toggle.checked = isManual;
+          
+          // Update UI (without calling API)
+          toggleMode(relay.name, isManual);
+        });
+        
+      } catch (error) {
+        console.error('Error loading device status:', error);
+      }
+    }
+
+    // Load status when page loads
+    // Uncomment this when you have a valid token
+    // loadDeviceStatus();
+  </script>
+
+</body>
+</html>

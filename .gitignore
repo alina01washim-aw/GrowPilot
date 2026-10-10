@@ -1,0 +1,27 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local editor and operating system files
+.DS_Store
+Thumbs.db
+.vscode/
+# Private API configuration files
+server/data/ai-config.json
+server/data/voice-config.json
